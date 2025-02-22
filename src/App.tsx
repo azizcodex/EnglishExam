@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Book, Headphones, GraduationCap, BookOpen, Menu, ArrowLeft } from 'lucide-react';
+import { Book, Headphones, GraduationCap, BookOpen, Menu, ArrowLeft, LogOut } from 'lucide-react';
 import { CategoryCard } from './components/CategoryCard';
 import { LevelBadge } from './components/LevelBadge';
 import { VocabSection } from './components/VocabSection';
 import { GrammarSection } from './components/GrammarSection';
+import { LoginPage } from './components/LoginPage';
+import { useAuth } from './context/AuthContext';
 import { phrasalVerbs, academicWords, weatherTerms, educationalTerms } from './data/vocabCategories';
 import { 
   nounExplanation, 
@@ -22,6 +24,7 @@ import {
 import { Level } from './types';
 
 function App() {
+  const { isAuthenticated, user, login, logout } = useAuth();
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
@@ -100,6 +103,14 @@ function App() {
       setSelectedCategory(null);
     } else {
       setSelectedSection(null);
+    }
+  };
+
+  const handleLogin = async (username: string, password: string) => {
+    const success = await login(username, password);
+    if (!success) {
+      // Handle login failure
+      alert('Invalid credentials. Try demo/password');
     }
   };
 
@@ -191,6 +202,10 @@ function App() {
     );
   };
 
+  if (!isAuthenticated) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -200,6 +215,16 @@ function App() {
             <div className="flex items-center">
               <Menu className="h-8 w-8 text-blue-600" />
               <h1 className="ml-3 text-2xl font-bold text-gray-900">English Learning Hub</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-gray-600">Welcome, {user}</span>
+              <button
+                onClick={logout}
+                className="flex items-center px-3 py-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              >
+                <LogOut className="h-5 w-5 mr-1" />
+                Logout
+              </button>
             </div>
           </div>
         </div>
